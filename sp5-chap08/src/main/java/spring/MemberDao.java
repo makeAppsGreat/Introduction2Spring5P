@@ -1,13 +1,17 @@
 package spring;
 
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
+import java.sql.Timestamp;
 import java.util.List;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 
 public class MemberDao {
   
@@ -52,11 +56,63 @@ public class MemberDao {
     return results.isEmpty() ? null : results.get(0);
   }
   
-  public Collection<Member> selectAll() { return null; }
-
-  public void insert(Member member) { }
+  public List<Member> selectAll() {
+    List<Member> results = jdbcTemplate.query("select * from MEMBER", new MemberRowMapper());
+    
+    return results;
+  }
   
-  public void update(Member member) { }
+  public int count() {
+    // JdbcTemplate.query()
+    /* List<Integer> results = jdbcTemplate.query(
+        "select count(*) from MEMBER",
+        (ResultSet rs, int rowNum) -> { return rs.getInt(1); });
+    
+    return results.get(0); */
+    
+    // JdbcTemplate.queryForOBject
+    return jdbcTemplate.queryForObject("select count(*) from MEMBER", Integer.class);
+  }
+  
+  public void update(Member member) {
+    // with SQL
+    jdbcTemplate.update(
+        "update MEMBER set NAME = ?, PASSWORD = ? where EMAIL = ?",
+        member.getName(), member.getPassword(), member.getEmail());
+  }
+
+  public void insert(Member member) {
+    // with PreparedStatementCreator
+    /*jdbcTemplate.update(new PreparedStatementCreator() {
+      @Override
+      public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+        PreparedStatement pstmt = con.prepareStatement("insert into MEMBER(EMAIL, PASSWORD, NAME, REGDATE) values (?, ?, ?, ?)");
+        pstmt.setString(1, member.getEmail());
+        pstmt.setString(2, member.getPassword());
+        pstmt.setString(3, member.getName());
+        pstmt.setTimestamp(4, Timestamp.valueOf(member.getRegisterDateTime()));
+        
+        return pstmt;
+      }
+    }); */
+    
+    // with PreparedStatementCreator and KeyHolder
+    KeyHolder keyHolder = new GeneratedKeyHolder();
+    jdbcTemplate.update((Connection con) -> {
+        PreparedStatement pstmt = con.prepareStatement(
+            "insert into MEMBER(EMAIL, PASSWORD, NAME, REGDATE) values (?, ?, ?, ?)",
+            new String[] {"ID"});
+        pstmt.setString(1, member.getEmail());
+        pstmt.setString(2, member.getPassword());
+        pstmt.setString(3, member.getName());
+        pstmt.setTimestamp(4, Timestamp.valueOf(member.getRegisterDateTime()));
+        
+        return pstmt;
+    }, keyHolder);
+    
+    Number keyValue = keyHolder.getKey();
+    member.setId(keyValue.longValue());
+  }
   
   private class MemberRowMapper implements RowMapper<Member> {
     
