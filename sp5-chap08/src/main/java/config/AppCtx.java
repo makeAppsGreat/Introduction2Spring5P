@@ -8,6 +8,11 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import spring.ChangePasswordService;
 import spring.MemberDao;
+import spring.MemberInfoPrinter;
+import spring.MemberListPrinter;
+import spring.MemberPrinter;
+import spring.MemberRegisterService;
+import spring.VersionPrinter;
 
 @Configuration
 @EnableTransactionManagement
@@ -48,6 +53,27 @@ public class AppCtx {
   public MemberDao memberDao() { return new MemberDao(dataSource()); }
   
   @Bean
+  public MemberRegisterService memberRegSvc() { return new MemberRegisterService(memberDao()); }
+  
+  @Bean
   public ChangePasswordService changePwdSvc() { return new ChangePasswordService(memberDao()); }
+  
+  @Bean
+  public MemberPrinter memberPrinter() { return new MemberPrinter(); }
+  
+  @Bean
+  public MemberListPrinter listPrinter() { return new MemberListPrinter(memberDao(), memberPrinter()); }
+  
+  @Bean
+  public MemberInfoPrinter infoPrinter() { return new MemberInfoPrinter(memberDao(), memberPrinter()); }
+  
+  @Bean
+  public VersionPrinter versionPrinter() {
+    VersionPrinter verPrinter = new VersionPrinter();
+    verPrinter.setMajorVersion(6);
+    verPrinter.setMinorVersion(0);
+    
+    return verPrinter;
+  }
 
 }
