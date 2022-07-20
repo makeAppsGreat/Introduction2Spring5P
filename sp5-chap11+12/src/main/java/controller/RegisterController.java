@@ -2,6 +2,7 @@ package controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,11 +34,17 @@ public class RegisterController {
   public String handelStep2Get() { return "redirect:step1"; }
   
   @PostMapping("/register/step3")
-  public String handelStep3(RegisterRequest regReq) {
+  public String handelStep3(RegisterRequest regReq, Errors errors) {
+    new RegisterRequestValidator().validate(regReq, errors);
+    if (errors.hasErrors()) return "register/step2";
+    
     try {
       memberRegisterService.regist(regReq);
       return "register/step3";
-    } catch (DuplicateMemberException e) { return "register/step2"; }
+    } catch (DuplicateMemberException e) {
+      errors.rejectValue("email", "duplicate");
+      return "register/step2";
+    }
   }
 
 }
