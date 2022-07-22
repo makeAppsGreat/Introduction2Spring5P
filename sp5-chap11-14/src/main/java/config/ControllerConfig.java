@@ -6,15 +6,20 @@ import org.springframework.context.annotation.Configuration;
 import controller.ChangePwdController;
 import controller.LoginController;
 import controller.LogoutController;
+import controller.MemberDetailController;
+import controller.MemberListController;
 import controller.RegisterController;
 import spring.AuthService;
 import spring.ChangePasswordService;
+import spring.MemberDao;
 import spring.MemberRegisterService;
 import survey.SurveyController;
 
 @Configuration
 public class ControllerConfig {
   
+  @Autowired
+  private MemberDao memberDao;
   @Autowired
   private MemberRegisterService memberRegSvc;
   @Autowired
@@ -41,5 +46,11 @@ public class ControllerConfig {
   
   @Bean
   public ChangePwdController changePwdController() { return new ChangePwdController(changePasswordService); }
+  
+  @Bean
+  public MemberListController memberListController() { return new MemberListController(memberDao); }
+  
+  @Bean
+  public MemberDetailController memberDetailController() { return new MemberDetailController(memberDao); }
   
 }
