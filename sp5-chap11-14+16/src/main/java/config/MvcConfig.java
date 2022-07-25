@@ -17,7 +17,6 @@ import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import interceptor.AuthCheckInterceptor;
 
@@ -54,7 +53,7 @@ public class MvcConfig implements WebMvcConfigurer {
     ObjectMapper objectMapper = Jackson2ObjectMapperBuilder
         .json()
         .serializerByType(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
-        .featuresToDisable(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+        // .featuresToDisable(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
         .build();
     
     converters.add(0, new MappingJackson2HttpMessageConverter(objectMapper));

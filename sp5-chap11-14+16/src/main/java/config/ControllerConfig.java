@@ -3,6 +3,7 @@ package config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import controller.ApiExceptionAdvice;
 import controller.ChangePwdController;
 import controller.LoginController;
 import controller.LogoutController;
@@ -56,5 +57,8 @@ public class ControllerConfig {
   
   @Bean
   public RestMemberController restApi() { return new RestMemberController(memberDao, memberRegSvc); }
+  
+  @Bean
+  public ApiExceptionAdvice apiExceptionAdvice() { return new ApiExceptionAdvice(); }
   
 }
